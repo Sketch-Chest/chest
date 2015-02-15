@@ -23,6 +23,7 @@ $ chest uninstall Sketch-StickyGrid # delete from Plugins folder
 $ chest update Sketch-StickyGrid    # pull from git
 $ chest update                      # this updates all of plugins
 $ chest list                        # list installed plugins
+```
 
 To see all of available commands, use `help` command:
 
