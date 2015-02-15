@@ -10,6 +10,22 @@ $ gem install chest
 
 ## Usage
 
+You can install Sketch plugins from Github by using `install` command:
+
+```console
+$ chest install https://github.com/uetchy/Sketch-StickyGrid.git
+```
+
+Also you can use `uninstall`, `update`, `list` commands like this:
+
+```console
+$ chest uninstall Sketch-StickyGrid # delete from Plugins folder
+$ chest update Sketch-StickyGrid    # pull from git
+$ chest update                      # this updates all of plugins
+$ chest list                        # list installed plugins
+
+To see all of available commands, use `help` command:
+
 ```console
 $ chest help
 ```
