@@ -9,10 +9,6 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Yasuaki Uechi"]
   spec.email         = ["uetchy@randompaper.co"]
 
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com' to prevent pushes to rubygems.org, or delete to allow pushes to any server."
-  end
-
   spec.summary       = %q{The lightweight plugin manager for Sketch.app}
   spec.homepage      = "https://github.com/uetchy/Sketch-Chest"
   spec.license       = "MIT"
