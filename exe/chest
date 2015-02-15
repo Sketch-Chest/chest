@@ -1,3 +1,10 @@
 #!/usr/bin/env ruby
 
 require "chest"
+
+begin
+  Chest::CLI.start ARGV
+rescue SystemExit, Interrupt
+rescue Exception => err
+  puts err
+end
