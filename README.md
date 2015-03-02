@@ -14,6 +14,8 @@ You can install Sketch plugins from Github by using `install` command:
 
 ```console
 $ chest install https://github.com/uetchy/Sketch-StickyGrid.git
+$ chest install uetchy/Sketch-StickyGrid
+$ chest i uetchy/Sketch-StickyGrid
 ```
 
 Also you can use `uninstall`, `update`, `list` commands like this:

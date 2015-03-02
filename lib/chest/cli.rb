@@ -2,27 +2,40 @@ require 'thor'
 require 'fileutils'
 
 class Chest::CLI < Thor
-  PLUGINS_FOLDER = File.expand_path '~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins'
-
   desc 'list', 'List plugins'
   def list
-    plugins.each do |plugin|
+    Chest::Plugin.all.each do |plugin|
       puts "(#{plugin.kind})\t#{plugin.name}"
     end
   end
 
-  desc 'install URL', 'Install plugin'
-  def install(url)
-    name = File.basename url, '.*'
-    path = File.join(PLUGINS_FOLDER, name)
+  desc 'install QUERY', 'Install plugin'
+  def install(query)
+    if query =~ /\.git$/
+      # just url
+      name = File.basename query, '.*'
+      url = query
+    elsif query =~ /([^\/]+)\/([^\/]+)/
+      # user/repo
+      name = $2
+      url = "https://github.com/#{$1}/#{$2}.git"
+    end
+
+    path = File.join(Chest::PLUGINS_FOLDER, name)
+    if Dir.exist? path
+      puts "#{name} was already installed."
+      exit
+    end
+
     puts "Installing '#{name}' ..."
     system "git clone '#{url}' '#{path}'"
   end
 
   desc 'uninstall NAME', 'Uninstall plugin'
   def uninstall(name)
-    path = File.join(PLUGINS_FOLDER, name)
+    path = File.join(Chest::PLUGINS_FOLDER, name)
     return unless Dir.exist? path
+
     puts "Uninstalling '#{name}' ..."
     FileUtils.rm_r(path)
   end
@@ -30,17 +43,9 @@ class Chest::CLI < Thor
   desc 'update [NAME]', 'Update plugins'
   def update(name=nil)
     if name
-      plugins.find{|x| name == x.name and x.update}
+      Chest::Plugin.all.find{|x| name == x.name and x.update}
     else
-      plugins.map(&:update)
+      Chest::Plugin.all.map(&:update)
     end
-  end
-
-  private
-
-  def plugins
-    Dir.glob(File.join(PLUGINS_FOLDER, '*')).collect do |path|
-      Dir.exist?(path) ? Chest::Plugin.new(path) : nil
-    end.compact
   end
 end
