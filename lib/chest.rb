@@ -1,6 +1,4 @@
-require "chest/version"
-require "chest/plugin"
-require "chest/cli"
-
-module Chest
-end
+require 'chest/config'
+require 'chest/plugin'
+require 'chest/version'
+require 'chest/cli'
