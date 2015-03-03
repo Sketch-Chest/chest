@@ -36,7 +36,7 @@ module Chest
 
     def attributes_with!(attributes={})
       attributes.each do |key, value|
-        self.send(key.to_s + "=", value) if self.respond_to?(key.to_s + "=")
+        self.send(key.to_s + '=', value) if self.respond_to?(key.to_s + '=')
       end
     end
 
