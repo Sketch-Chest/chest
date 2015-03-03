@@ -1,10 +1,12 @@
 ![Logo](https://raw.githubusercontent.com/uetchy/Sketch-Chest/master/assets/readme_images/logo.png)
 
+# Chest
+
+[![Join the chat at https://gitter.im/uetchy/Sketch-Chest](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/uetchy/Sketch-Chest?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The lightweight plugin manager for Sketch.app.
 
 ## Installation
-
-[![Join the chat at https://gitter.im/uetchy/Sketch-Chest](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/uetchy/Sketch-Chest?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ```console
 $ gem install chest
