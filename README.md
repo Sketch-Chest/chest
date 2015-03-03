@@ -1,4 +1,4 @@
-![Logo](https://raw.githubusercontent.com/uetchy/Sketch-Chest/assets/readme_images/logo.png)
+![Logo](https://raw.githubusercontent.com/uetchy/Sketch-Chest/master/assets/readme_images/logo.png)
 
 The lightweight plugin manager for Sketch.app.
 
