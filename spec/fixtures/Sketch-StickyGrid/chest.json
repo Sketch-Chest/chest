@@ -1,0 +1,11 @@
+{
+  "name": "StickyGrid",
+  "version": "1.0.0",
+  "description": "Sketch plugin to make paths be snapped to grid.",
+  "keywords": "",
+  "authors": [
+    "Yasuaki Uechi <uetchy@randompaper.co>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/uetchy/Sketch-Chest"
+}
