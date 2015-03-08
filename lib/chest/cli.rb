@@ -3,46 +3,44 @@ require 'fileutils'
 require 'json'
 
 class Chest::CLI < Thor
+  def initialize(*args)
+    super
+    # TODO: add plugins that out of control into manifest
+  end
+
   desc 'list', 'List plugins'
   def list
     Chest::Plugin.all.each do |plugin|
-      puts "(#{plugin.kind})\t#{plugin.name}"
+      puts "(#{plugin.type})\t#{plugin.name}"
     end
   end
 
-  desc 'install QUERY', 'Install plugin'
-  def install(query)
-    if query =~ /\.git$/
-      # just url
-      name = File.basename query, '.*'
-      url = query
-    elsif query =~ /([^\/]+)\/([^\/]+)/
-      # user/repo
-      name = $2
-      url = "https://github.com/#{$1}/#{$2}.git"
+  desc 'install QUERY [, ALIAS_NAME]', 'Install plugin'
+  def install(query, alias_name=nil)
+    plugin = Chest::Plugin.create_from_query(query, alias_name)
+
+    if Dir.exist? plugin.path
+      fail "#{plugin.name} was already installed."
+    end
+
+    say "Installing '#{plugin.name}' ...", :green
+    if plugin.install
+      say "Successfully installed", :green
     else
-      # chest repository
-      name = query
-      url = "http://localhost:3000/api/packages/#{name}/download"
+      fail "Error happend"
     end
-
-    path = File.join(Chest::PLUGINS_FOLDER, name)
-    if Dir.exist? path
-      puts "#{name} was already installed."
-      exit
-    end
-
-    puts "Installing '#{name}' ..."
-    system "git clone '#{url}' '#{path}'"
   end
 
   desc 'uninstall NAME', 'Uninstall plugin'
   def uninstall(name)
-    path = File.join(Chest::PLUGINS_FOLDER, name)
-    return unless Dir.exist? path
+    plugin = Chest::Plugin.new(name)
 
-    puts "Uninstalling '#{name}' ..."
-    FileUtils.rm_r(path)
+    unless Dir.exist? plugin.path
+      fail "#{plugin.name} doesn't exist"
+    end
+
+    say "Uninstalling '#{plugin.name}' ..."
+    plugin.uninstall
   end
 
   desc 'update [NAME]', 'Update plugins'
@@ -51,6 +49,20 @@ class Chest::CLI < Thor
       Chest::Plugin.all.find{|x| name == x.name and x.update}
     else
       Chest::Plugin.all.map(&:update)
+    end
+  end
+
+  desc 'info NAME', 'Show plugin info'
+  def info(name)
+    plugin = Chest::Plugin.new(name)
+    case plugin.type
+    when :chest
+      puts plugin.name
+      puts plugin.version
+    when :git
+      puts plugin.name
+      puts plugin.options.url
+    when :direct
     end
   end
 
