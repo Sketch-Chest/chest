@@ -3,7 +3,7 @@ require 'uri'
 require 'json'
 require 'rest_client'
 
-class Chest::Connector
+class Chest::Registry
   def initialize(token, api: 'http://chest.pm/api')
     @token = token
     @api = api

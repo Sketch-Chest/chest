@@ -35,10 +35,10 @@ class ZipFileGenerator
   end
 end
 
-describe Chest::Connector do
+describe Chest::Registry do
   before :all do
     token = 'qlpqfi77yskT-GleSAlv9g'
-    @conn = Chest::Connector.new(token, api: 'http://localhost:3000/api')
+    @registry = Chest::Registry.new(token, api: 'http://localhost:3000/api')
   end
 
   it 'can publish package' do
@@ -62,7 +62,7 @@ describe Chest::Connector do
     File.delete archive_path if File.exist? archive_path
     ZipFileGenerator.new(input_path, archive_path).write
 
-    status = @conn.publish_package(metadata, File.new(archive_path, 'rb'))
+    status = @registry.publish_package(metadata, File.new(archive_path, 'rb'))
 
     pp status
 
@@ -71,7 +71,7 @@ describe Chest::Connector do
 
   it 'can fetch package information' do
     name = 'StickyGrid'
-    info = @conn.fetch_package(name)
+    info = @registry.fetch_package(name)
 
     pp info
 
@@ -81,7 +81,7 @@ describe Chest::Connector do
   end
 
   # it 'can unpublish plugin' do
-  #   status = @conn.unpublish_package('StickyGrid')
+  #   status = @registry.unpublish_package('StickyGrid')
   #   pp status
 
   #   expect(status).to be_a_kind_of Hash

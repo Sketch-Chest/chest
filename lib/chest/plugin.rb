@@ -155,8 +155,8 @@ module Chest
     end
 
     def fetch_chest
-      conn = Chest::Connector.new
-      conn.download_package(@name, 'latest', path)
+      registry = Chest::Registry.new
+      registry.download_package(@name, 'latest', path)
       # TODO
     end
 
