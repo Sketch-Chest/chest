@@ -1,4 +1,5 @@
+require 'chest/version'
 require 'chest/config'
 require 'chest/plugin'
-require 'chest/version'
+require 'chest/connector'
 require 'chest/cli'
