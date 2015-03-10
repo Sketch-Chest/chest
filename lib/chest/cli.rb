@@ -77,7 +77,7 @@ class Chest::CLI < Thor
 
     package['description'] = ask 'description:'
 
-    package['keywords'] = ask 'keywords:'
+    package['keywords'] = ask 'keywords:', default: []
 
     git_user = `git config --get user.name`.strip
     git_email = `git config --get user.email`.strip
@@ -90,6 +90,11 @@ class Chest::CLI < Thor
       { default: "https://github.com/#{$1}/#{$2}" }
     end
 
+    package['repository'] = {
+      type: :git,
+      url: remote_url
+    }
+
     say "\n"
 
     json = JSON.pretty_generate(package)
@@ -100,5 +105,19 @@ class Chest::CLI < Thor
       end
       File.open('chest.json', 'w').write(json)
     end
+  end
+
+  desc 'publish', 'Publish package'
+  def publish(dir=Dir.pwd)
+    config = Chest::Config.new
+
+    unless config.token
+      config.token = ask 'Chest registry token:'
+      fail SystemExit unless config.token
+      config.save
+    end
+
+    registry = Chest::Registry.new config.token
+    registry.publish_package dir
   end
 end
