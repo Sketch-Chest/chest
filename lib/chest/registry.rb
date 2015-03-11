@@ -41,17 +41,8 @@ class Chest::Registry
   def publish_package(input_path=Dir.pwd)
     chest_config = JSON.parse(open(File.join(input_path, 'chest.json')).read)
 
-    metadata = {
-      name: chest_config['name'],
-      version: chest_config['version'],
-      description: chest_config['description'],
-      readme: File.open(File.join(input_path, 'README.md')).read,
-      homepage: chest_config['homepage'],
-      repository: chest_config['repository'],
-      license: chest_config['license'],
-      authors: chest_config['authors'],
-      keywords: chest_config['keywords']
-    }
+    readme = File.open(File.join(input_path, 'README.md')).read
+    metadata = chest_config.merge readme: readme
 
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join tmpdir, "#{chest_config['name']}.zip"
