@@ -3,7 +3,6 @@ require 'ostruct'
 require 'fileutils'
 
 module Chest
-
   CONFIG_NAME = '.chestrc'
   CONFIG_PATH = File.expand_path(CONFIG_NAME, '~')
 
@@ -26,7 +25,7 @@ module Chest
           end
         end
       rescue Errno::ENOENT, IOError
-        raise FileMissingError
+        raise FileMissingError, @file_path
       end
     end
 
@@ -54,7 +53,6 @@ module Chest
     end
 
     private
-
     def symbolize_keys(hash)
       hash.inject({}){|res, (k,v)| res[k.to_sym] = v; res}
     end

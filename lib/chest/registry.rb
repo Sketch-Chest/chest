@@ -23,12 +23,16 @@ class Chest::Registry
     request :get, "/packages/#{package_name}"
   end
 
+  def fetch_package_versions(package_name)
+    request :get, "/packages/#{package_name}/versions"
+  end
+
   def download_package(package_name, version='latest', path)
     Dir.mkdir path unless Dir.exist? path
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join tmpdir, 'package.zip'
       open(archive_path, 'wb') do |f|
-        f.write RestClient.get(@api + "/packages/#{package_name}/download", params: {version: version}).body
+        f.write RestClient.get(@api + "/packages/#{package_name}/versions/#{version}/download").body
       end
       Zip::File.open archive_path do |zip_file|
         zip_file.each do |entry|
