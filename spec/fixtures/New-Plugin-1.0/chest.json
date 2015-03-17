@@ -1,0 +1,15 @@
+{
+  "name": "New-Plugin",
+  "version": "1.0.0",
+  "description": "All new plugin",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uetchy/New-Plugin.git"
+  },
+  "authors": [
+    "Yasuaki Uechi <uetchy@randompaper.co>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/uetchy/New-Plugin"
+}
