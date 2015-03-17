@@ -1,14 +1,15 @@
 require 'zip'
 
 class ZipFileGenerator
-  def initialize(inputDir, outputFile)
+  def initialize(inputDir, outputFile, ignoredFiles=[])
     @inputDir = inputDir
     @outputFile = outputFile
+    @ignoredFiles = ignoredFiles
   end
 
   def write()
     entries = Dir.entries(@inputDir)
-    ['.', '..', '.git'].each{|e| entries.delete(e) }
+    @ignoredFiles.each{|e| entries.delete(e) }
     io = Zip::File.open(@outputFile, Zip::File::CREATE)
     writeEntries(entries, "", io)
     io.close()

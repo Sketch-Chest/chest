@@ -47,12 +47,19 @@ class Chest::Registry
 
     readme = File.open(File.join(input_path, 'README.md')).read
     metadata = chest_config.merge readme: readme
+    ignoreConfigPath = File.join(input_path, '.gitignore')
+    ignoredFiles = File.exist?(ignoreConfigPath) ? File.open(ignoreConfigPath).read.split(/\r?\n/) : []
+    ignoredFiles |= ['.', '..', '.git']
+
+    response = nil
 
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join tmpdir, "#{chest_config['name']}.zip"
-      ZipFileGenerator.new(input_path, archive_path).write
-      request :post, "/packages", token: @token, metadata: metadata.to_json, archive: File.new(archive_path, 'rb')
+      ZipFileGenerator.new(input_path, archive_path, ignoredFiles).write
+      response = request :post, "/packages", token: @token, metadata: metadata.to_json, archive: File.new(archive_path, 'rb')
     end
+
+    return response
   end
 
   def unpublish_package(package_name)
