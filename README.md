@@ -2,7 +2,7 @@
 
 # Chest
 
-[![Join the chat at https://gitter.im/uetchy/Sketch-Chest](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/uetchy/Sketch-Chest?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/Sketch-Chest/chest](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Sketch-Chest/chest?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 The lightweight plugin manager for Sketch.app.
 
@@ -18,8 +18,8 @@ You can install Sketch plugins from Github by using `install` command:
 
 ```console
 $ chest install https://github.com/uetchy/Sketch-StickyGrid.git
-$ chest install uetchy/Sketch-StickyGrid
 $ chest i uetchy/Sketch-StickyGrid
+$ chest install StickyGrid
 ```
 
 Also you can use `uninstall`, `update`, `list` commands like this:
@@ -45,7 +45,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-1. Fork it ( https://github.com/uetchy/Sketch-Chest/fork )
+1. Fork it ( https://github.com/Sketch-Chest/chest/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
