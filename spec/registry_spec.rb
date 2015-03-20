@@ -37,6 +37,7 @@ describe Chest::Registry do
     expect(info).to have_key 'name'
     expect(info['name']).to eq name
     expect(info['version']).to eq '1.0.0'
+    expect(info['license']).to eq 'MIT'
   end
 
   it 'can fetch versions index' do
@@ -75,10 +76,10 @@ describe Chest::Registry do
     end
   end
 
-  it 'can unpublish plugin' do
-    status = @registry.unpublish_package('StickyGrid')
-    expect(status).to have_key 'status'
-    status = @registry.unpublish_package('New-Plugin')
-    expect(status).to have_key 'status'
-  end
+  # it 'can unpublish plugin' do
+  #   status = @registry.unpublish_package('StickyGrid')
+  #   expect(status).to have_key 'status'
+  #   status = @registry.unpublish_package('New-Plugin')
+  #   expect(status).to have_key 'status'
+  # end
 end

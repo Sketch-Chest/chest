@@ -45,18 +45,19 @@ class Chest::Registry
   def publish_package(input_path=Dir.pwd)
     chest_config = JSON.parse(open(File.join(input_path, 'chest.json')).read)
 
-    readme = File.open(File.join(input_path, 'README.md')).read
+    readme_path = File.join(input_path, 'README.md')
+    readme = File.exist?(readme_path) ? File.open(readme_path).read : ''
     metadata = chest_config.merge readme: readme
-    ignoreConfigPath = File.join(input_path, '.gitignore')
-    ignoredFiles = File.exist?(ignoreConfigPath) ? File.open(ignoreConfigPath).read.split(/\r?\n/) : []
-    ignoredFiles |= ['.', '..', '.git']
+    ignore_config_path = File.join(input_path, '.gitignore')
+    ignored_files = File.exist?(ignore_config_path) ? File.open(ignore_config_path).read.split(/\r?\n/) : []
+    ignored_files |= ['.', '..', '.git']
 
     response = nil
 
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join tmpdir, "#{chest_config['name']}.zip"
-      ZipFileGenerator.new(input_path, archive_path, ignoredFiles).write
-      response = request :post, "/packages", token: @token, metadata: metadata.to_json, archive: File.new(archive_path, 'rb')
+      ZipFileGenerator.new(input_path, archive_path, ignored_files).write
+      response = request :post, "/packages", token: @token, metadata: metadata, archive: File.new(archive_path, 'rb')
     end
 
     return response

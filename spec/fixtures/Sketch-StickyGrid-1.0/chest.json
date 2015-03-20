@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Sketch plugin to make paths be snapped to grid.",
   "keywords": ["grid"],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/uetchy/Sketch-Chest.git"
-  },
+  "repository": "https://github.com/uetchy/Sketch-Chest.git",
   "authors": [
     "Yasuaki Uechi <uetchy@randompaper.co>"
   ],

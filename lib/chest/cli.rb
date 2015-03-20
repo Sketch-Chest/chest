@@ -77,7 +77,7 @@ class Chest::CLI < Thor
 
     package['description'] = ask 'description:'
 
-    package['keywords'] = ask 'keywords:', default: []
+    package['keywords'] = [ask('keywords:')]
 
     git_user = `git config --get user.name`.strip
     git_email = `git config --get user.email`.strip
@@ -90,10 +90,7 @@ class Chest::CLI < Thor
       { default: "https://github.com/#{$1}/#{$2}" }
     end
 
-    package['repository'] = {
-      type: :git,
-      url: remote_url
-    }
+    package['repository'] = remote_url
 
     say "\n"
 
@@ -117,7 +114,7 @@ class Chest::CLI < Thor
       config.save
     end
 
-    registry = Chest::Registry.new config.token
-    registry.publish_package dir
+    registry = Chest::Registry.new config.token, api: 'http://localhost:3000/api'
+    say registry.publish_package dir
   end
 end
