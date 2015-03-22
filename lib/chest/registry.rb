@@ -43,7 +43,8 @@ class Chest::Registry
   def download_package(package_name, version='latest', path)
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join(tmpdir, 'package.zip')
-      unarchived_path = File.join(tmpdir, 'package')
+      unarchived_path = File.join(tmpdir, package_name)
+      Dir.mkdir unarchived_path
       open(archive_path, 'wb') do |f|
         f.write request_raw(:get, @api + "/packages/#{package_name}/versions/#{version}/download").body
       end
@@ -59,7 +60,7 @@ class Chest::Registry
         Dir.mkdir path
       end
 
-      FileUtils.cp_r Dir.glob("#{unarchived_path}/*"), path
+      FileUtils.cp_r unarchived_path, path
     end
   end
 
