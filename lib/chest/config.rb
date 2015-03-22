@@ -9,13 +9,15 @@ module Chest
   class FileMissingError < StandardError; end
 
   class Config < OpenStruct
+    SKETCH_APPSTORE = '~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins'
+    SKETCH_BETA = '~/Library/Application Support/com.bohemiancoding.sketch3/Plugins'
     attr_reader :file_path
 
     def initialize(file_path=CONFIG_PATH)
       super({})
       @file_path = file_path
       @default_options = {}
-      @default_options[:plugins_folder] = File.expand_path('~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
+      @default_options[:plugins_folder] = File.exist?(SKETCH_APPSTORE) ? File.expand_path(SKETCH_APPSTORE) : File.expand_path(SKETCH_BETA)
       @default_options[:manifest_path] = File.join(@default_options[:plugins_folder], '.manifest.json')
 
       self.load!
