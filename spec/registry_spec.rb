@@ -76,10 +76,10 @@ describe Chest::Registry do
     end
   end
 
-  # it 'can unpublish plugin' do
-  #   status = @registry.unpublish_package('StickyGrid')
-  #   expect(status).to have_key 'status'
-  #   status = @registry.unpublish_package('New-Plugin')
-  #   expect(status).to have_key 'status'
-  # end
+  it 'can unpublish plugin' do
+    status = @registry.unpublish_package('StickyGrid')
+    expect(status).to have_key 'status'
+    status = @registry.unpublish_package('New-Plugin')
+    expect(status).to have_key 'status'
+  end
 end
