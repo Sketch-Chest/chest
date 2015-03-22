@@ -4,7 +4,7 @@ module Chest
   class Manifest
     attr_reader :manifest
 
-    def initialize(path=MANIFEST_PATH)
+    def initialize(path=Chest::Config.new.manifest_path)
       @path = path
       @manifest = load_manifest
     end

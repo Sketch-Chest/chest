@@ -17,7 +17,7 @@ module Chest
     end
 
     def path
-      File.join(PLUGINS_FOLDER, @name)
+      File.join(Chest::Config.new.plugins_folder, @name)
     end
 
     def type

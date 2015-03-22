@@ -14,6 +14,10 @@ module Chest
     def initialize(file_path=CONFIG_PATH)
       super({})
       @file_path = file_path
+      @default_options = {}
+      @default_options[:plugins_folder] = File.expand_path('~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
+      @default_options[:manifest_path] = File.join(@default_options[:plugins_folder], '.manifest.json')
+
       self.load!
     end
 
@@ -27,6 +31,10 @@ module Chest
       rescue Errno::ENOENT, IOError
         raise FileMissingError, @file_path
       end
+    end
+
+    def method_missing(name, *args)
+      @default_options[name] ? @default_options[name] : super(name, *args)
     end
 
     def update!(attributes={})
