@@ -1,6 +1,6 @@
 module Chest
   PLUGINS_FOLDER = File.expand_path('~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
-  MANIFEST_PATH = File.join(PLUGINS_FOLDER, 'plugins.json')
+  MANIFEST_PATH = File.join(PLUGINS_FOLDER, '.manifest.json')
 end
 
 require 'chest/version'
