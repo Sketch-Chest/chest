@@ -8,26 +8,17 @@ class Chest::CLI < Thor
     # TODO: add plugins, which are out of control, to manifest file
   end
 
-  desc 'list', 'List plugins'
-  def list
-    Chest::Plugin.all.each do |plugin|
-      puts "(#{plugin.type})\t#{plugin.name}"
-    end
-  end
-
   desc 'install QUERY [, ALIAS_NAME]', 'Install plugin'
   def install(query, alias_name=nil)
     plugin = Chest::Plugin.create_from_query(query, alias_name)
 
-    if !plugin.outdated?
-      fail "#{plugin.name} was already updated to latest version"
-    end
-
     say "Installing '#{plugin.name}' ...", :green
-    if plugin.install
-      say "Successfully installed", :green
+    begin
+      plugin.install
+    rescue => e
+      fail "   #{e}"
     else
-      fail "Error happend"
+      say "   Successfully installed", :green
     end
   end
 
@@ -35,34 +26,56 @@ class Chest::CLI < Thor
   def uninstall(name)
     plugin = Chest::Plugin.new(name)
 
-    unless Dir.exist? plugin.path
-      fail "#{plugin.name} doesn't exist"
-    end
-
     say "Uninstalling '#{plugin.name}' ..."
-    plugin.uninstall
+    begin
+      plugin.uninstall
+    rescue => e
+      fail "   #{e}"
+    end
   end
 
   desc 'update [NAME]', 'Update plugins'
   def update(name=nil)
-    if name
-      Chest::Plugin.all.find{|x| name == x.name and x.update}
-    else
-      Chest::Plugin.all.map(&:update)
+    puts "Updating plugins"
+
+    plugins = name ? [Chest::Manifest.new.get_plugin(name)] : Chest::Manifest.new.plugins
+    plugins.each do |plugin|
+      begin
+        plugin.update
+      rescue => e
+        fail "   #{plugin.name}: #{e}"
+      else
+        say "Updated '#{plugin.name}'"
+      end
     end
   end
 
   desc 'info NAME', 'Show plugin info'
   def info(name)
-    plugin = Chest::Plugin.new(name)
+    plugin = Chest::Manifest.new.get_plugin(name)
     case plugin.type
     when :chest
-      puts plugin.name
-      puts plugin.version
+      say "#{plugin.name} (#{plugin.options.version})"
     when :git
-      puts plugin.name
-      puts plugin.options.url
+      say plugin.name
+      say plugin.options.url
     when :direct
+      say plugin.name
+      say plugin.options.url
+    end
+  end
+
+  desc 'list', 'List plugins'
+  def list
+    Chest::Manifest.new.plugins.each do |plugin|
+      case plugin.type
+      when :chest
+        say "#{plugin.name} (#{plugin.options.version})"
+      when :git
+        say "#{plugin.name} (#{plugin.options.url})"
+      when :direct
+        say "#{plugin.name} (#{plugin.options.url})"
+      end
     end
   end
 
@@ -123,6 +136,12 @@ class Chest::CLI < Thor
     end
 
     registry = Chest::Registry.new config.token
-    say registry.publish_package dir
+    begin
+      registry.publish_package(dir)
+    rescue => e
+      fail e
+    else
+      say "Published"
+    end
   end
 end

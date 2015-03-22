@@ -13,6 +13,10 @@ module Chest
       @manifest.map{|k, v| Plugin.new(k, parse_option(v))}
     end
 
+    def get_plugin(name)
+      Plugin.new name.to_s, parse_option(@manifest[name.to_s])
+    end
+
     def get_plugin_option(name)
       unless @manifest[name.to_s]
         return {}

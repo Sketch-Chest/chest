@@ -46,8 +46,6 @@ module Chest
     end
 
     def update
-      return unless outdated?
-
       fetch_method = "update_#{type}"
       if respond_to?(fetch_method, true) && self.send(fetch_method)
         manifest = Manifest.new
@@ -77,10 +75,6 @@ module Chest
         new(alias_name || name, options)
       end
 
-      def all
-        Manifest.new.plugins
-      end
-
       def parse_query(query)
         if query =~ /\.git$/
           name = File.basename(query, '.*')
@@ -104,8 +98,7 @@ module Chest
           ]
         elsif query =~ /\A([a-zA-Z0-9_\-]+)(?:@([a-zA-Z0-9\-\.]+))?\z/
           name = $1
-          package = Chest::Registry.new.fetch_package(name)
-          version = $2 || package['version']
+          version = $2
           [
             name,
             {
@@ -137,10 +130,15 @@ module Chest
     end
 
     def fetch_chest
+      raise 'already exists' if Dir.exist?(path)
+
+      @options.version = latest_version
       @registry.download_package(@name, @options.version, path)
     end
 
     def update_chest
+      raise 'already updated to latest version' unless outdated?
+
       FileUtils.rm_r(path) if Dir.exist?(path)
       @options.version = latest_version
       @registry.download_package(@name, @options.version, path)
