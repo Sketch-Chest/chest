@@ -131,41 +131,45 @@ module Chest
 
     def fetch_chest
       raise 'already exists' if Dir.exist?(path)
-
       @options.version = latest_version
       @registry.download_package(@name, @options.version, path)
     end
 
     def update_chest
       raise 'already updated to latest version' unless outdated?
-
       FileUtils.rm_r(path) if Dir.exist?(path)
       @options.version = latest_version
       @registry.download_package(@name, @options.version, path)
     end
 
     def fetch_git
-      if system "git clone '#{@options.url}' '#{path}'"
-        true
+      if @options.branch
+        command = "git clone -b #{@options.branch} '#{@options.url}' '#{path}'"
       else
+        command = "git clone '#{@options.url}' '#{path}'"
+      end
+
+      unless system command
         raise "Failed to install #{@options.url}"
       end
     end
 
     def update_git
-      if system "cd '#{path}' && git pull"
-        true
-      else
+      unless system "cd '#{path}' && git pull"
         raise "Failed to update #{@name}"
       end
     end
 
     def fetch_direct
-      system "curl -L '#{@options.url}' -o '#{path}'"
+      unless system "curl -L '#{@options.url}' -o '#{path}'"
+        raise "Failed to install #{@name}"
+      end
     end
 
     def update_direct
-      system "curl -L '#{@options.url}' -o '#{path}'"
+      unless system "curl -L '#{@options.url}' -o '#{path}'"
+        raise "Failed to update #{@name}"
+      end
     end
   end
 end
