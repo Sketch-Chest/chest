@@ -5,7 +5,7 @@ require 'json'
 class Chest::CLI < Thor
   def initialize(*args)
     super
-    # TODO: add plugins that out of control into manifest
+    # TODO: add plugins, which are out of control, to manifest file
   end
 
   desc 'list', 'List plugins'
@@ -19,8 +19,8 @@ class Chest::CLI < Thor
   def install(query, alias_name=nil)
     plugin = Chest::Plugin.create_from_query(query, alias_name)
 
-    if Dir.exist? plugin.path
-      fail "#{plugin.name} was already installed."
+    if !plugin.outdated?
+      fail "#{plugin.name} was already updated to latest version"
     end
 
     say "Installing '#{plugin.name}' ...", :green
@@ -71,29 +71,37 @@ class Chest::CLI < Thor
     package = {}
 
     say 'Creating chest.json ...'
+
+    # Name
     package['name'] = ask 'name:', default: File.basename(Dir.pwd)
 
+    # Version
     package['version'] = ask 'version:', default: '1.0.0'
 
+    # Description
     package['description'] = ask 'description:'
 
+    # Keywords
     package['keywords'] = [ask('keywords:')]
 
-    git_user = `git config --get user.name`.strip
+    # Authors
+    git_user  = `git config --get user.name`.strip
     git_email = `git config --get user.email`.strip
     package['authors'] = [ask('authors:', default: "#{git_user} <#{git_email}>")]
 
+    # License
     package['license'] = ask 'license:', default: 'MIT'
 
+    # Homepage
     remote_url = `git config --get remote.origin.url`.strip
     package['homepage'] = ask 'homepage:', if remote_url =~ /github\.com[:\/]([a-zA-Z0-9_-]+?)\/([a-zA-Z0-9_\-]+?)\.git/
       { default: "https://github.com/#{$1}/#{$2}" }
     end
 
+    # Repository
     package['repository'] = remote_url
 
     say "\n"
-
     json = JSON.pretty_generate(package)
     say json
     if yes? 'Looks good?', :green
@@ -110,11 +118,11 @@ class Chest::CLI < Thor
 
     unless config.token
       config.token = ask 'Chest registry token:'
-      fail SystemExit unless config.token
+      fail 'Specify valid token' unless config.token
       config.save
     end
 
-    registry = Chest::Registry.new config.token, api: 'http://localhost:3000/api'
+    registry = Chest::Registry.new config.token
     say registry.publish_package dir
   end
 end

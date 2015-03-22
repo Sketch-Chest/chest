@@ -4,9 +4,13 @@ module Chest
   class Manifest
     attr_reader :manifest
 
-    def initialize(path)
+    def initialize(path=MANIFEST_PATH)
       @path = path
       @manifest = load_manifest
+    end
+
+    def plugins
+      @manifest.map{|k, v| Plugin.new(k, parse_option(v))}
     end
 
     def get_plugin_option(name)

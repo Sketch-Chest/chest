@@ -1,21 +1,34 @@
 require 'json'
 require 'rest_client'
+require 'fileutils'
 require 'chest/helpers/zipfile'
 
 class Chest::Registry
   def initialize(token=nil, api: 'http://chest.pm/api')
     @token = token
-    @api = api
+    # @api = api
+    @api = 'http://localhost:3000/api'
   end
 
-  def request(method, path, params={})
+  def request_raw(method, path, params=nil)
     case method
     when :get
-      JSON.parse(RestClient.get(@api + path, params: params).body)
+      RestClient.get(path, params: params)
     when :post
-      JSON.parse(RestClient.post(@api + path, params, content_type: :json, accept: :json).body)
+      RestClient.post(path, params, content_type: :json, accept: :json)
     when :delete
-      JSON.parse(RestClient.delete(@api + path, params: params).body)
+      RestClient.delete(path, params: params)
+    end
+  end
+
+  def request(method, path, params=nil)
+    case method
+    when :get
+      JSON.parse(request_raw(:get, @api + path, params).body)
+    when :post
+      JSON.parse(request_raw(:post, @api + path, params).body)
+    when :delete
+      JSON.parse(request_raw(:delete, @api + path, params).body)
     end
   end
 
@@ -28,17 +41,25 @@ class Chest::Registry
   end
 
   def download_package(package_name, version='latest', path)
-    Dir.mkdir path unless Dir.exist? path
     Dir.mktmpdir do |tmpdir|
-      archive_path = File.join tmpdir, 'package.zip'
+      archive_path = File.join(tmpdir, 'package.zip')
+      unarchived_path = File.join(tmpdir, 'package')
       open(archive_path, 'wb') do |f|
-        f.write RestClient.get(@api + "/packages/#{package_name}/versions/#{version}/download").body
+        f.write request_raw(:get, @api + "/packages/#{package_name}/versions/#{version}/download").body
       end
       Zip::File.open archive_path do |zip_file|
         zip_file.each do |entry|
-          entry.extract(File.join(path, entry.to_s))
+          entry.extract(File.join(unarchived_path, entry.to_s))
         end
       end
+
+      if Dir.exist?(path)
+        FileUtils.rm_r path
+      else
+        Dir.mkdir path
+      end
+
+      FileUtils.cp_r Dir.glob("#{unarchived_path}/*"), path
     end
   end
 
