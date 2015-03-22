@@ -1,6 +1,7 @@
 require 'json'
 require 'fileutils'
 require 'ostruct'
+require 'semantic'
 
 module Chest
   class Plugin
@@ -10,7 +11,9 @@ module Chest
 
     def initialize(name, options=nil)
       @name = name
-      @options = OpenStruct.new(options ? options : Manifest.new(MANIFEST_PATH).get_plugin_option(name))
+      @options = OpenStruct.new(options)
+
+      @registry = Chest::Registry.new
     end
 
     def path
@@ -24,7 +27,7 @@ module Chest
     def install
       fetch_method = "fetch_#{type}"
       if respond_to?(fetch_method, true) && self.send(fetch_method)
-        manifest = Manifest.new(MANIFEST_PATH)
+        manifest = Manifest.new
         manifest.add_plugin(@name, to_option)
         manifest.save
       else
@@ -34,7 +37,7 @@ module Chest
 
     def uninstall
       if Dir.exist?(path) && FileUtils.rm_r(path)
-        manifest = Manifest.new(MANIFEST_PATH)
+        manifest = Manifest.new
         manifest.remove_plugin(@name)
         manifest.save
       else
@@ -42,18 +45,29 @@ module Chest
       end
     end
 
-    def updatable?
-      type != :local
-    end
-
     def update
+      return unless outdated?
+
       fetch_method = "update_#{type}"
       if respond_to?(fetch_method, true) && self.send(fetch_method)
-        manifest = Manifest.new(MANIFEST_PATH)
+        manifest = Manifest.new
         manifest.add_plugin(@name, to_option)
         manifest.save
       else
         raise "Unknown strategy type: #{type}"
+      end
+    end
+
+    def outdated?
+      case type
+      when :chest
+        package = @registry.fetch_package(name)
+        return true unless package['version']
+        return Semantic::Version.new(@options.version) < Semantic::Version.new(package['version'])
+      when :git
+        true
+      when :direct
+        true
       end
     end
 
@@ -64,33 +78,39 @@ module Chest
       end
 
       def all
-        manifest = Manifest.new(MANIFEST_PATH)
-        manifest.manifest.map{|k,v| new(k, parse_query(v).last)}
+        Manifest.new.plugins
       end
 
       def parse_query(query)
         if query =~ /\.git$/
+          name = File.basename(query, '.*')
+          url  = query
           [
-            File.basename(query, '.*'),
+            name,
             {
               type: :git,
               url: query
             }
           ]
         elsif query =~ /\A([a-zA-Z0-9_\-]+)\/([a-zA-Z0-9_\-]+)\z/
+          name = $2
+          url  = "https://github.com/#{$1}/#{$2}.git"
           [
-            $2,
+            name,
             {
               type: :git,
-              url: "https://github.com/#{$1}/#{$2}.git"
+              url: url
             }
           ]
         elsif query =~ /\A([a-zA-Z0-9_\-]+)(?:@([a-zA-Z0-9\-\.]+))?\z/
+          name = $1
+          package = Chest::Registry.new.fetch_package(name)
+          version = $2 || package['version']
           [
-            $1,
+            name,
             {
               type: :chest,
-              version: $2 || 'latest'
+              version: version
             }
           ]
         else
@@ -109,20 +129,21 @@ module Chest
         @options.url
       when :direct
         @options.url
-      else
-        ''
       end
     end
 
+    def latest_version
+      @registry.fetch_package(@name)['version']
+    end
+
     def fetch_chest
-      registry = Chest::Registry.new
-      registry.download_package(@name, @options.version, path)
+      @registry.download_package(@name, @options.version, path)
     end
 
     def update_chest
-      FileUtil.rm_r path if Dir.exist? path
-      registry = Chest::Registry.new
-      registry.download_package(@name, @options.version, path)
+      FileUtils.rm_r(path) if Dir.exist?(path)
+      @options.version = latest_version
+      @registry.download_package(@name, @options.version, path)
     end
 
     def fetch_git
