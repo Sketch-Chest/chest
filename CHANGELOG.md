@@ -1,3 +1,9 @@
+# 2.0.0
+
+- Chest registry service integration
+- Support for downloading zipped-archives
+- Add #init, #info, #publish, #unpublish command
+
 # 1.0.0
 
 - Support for reducted format of plugin specification
