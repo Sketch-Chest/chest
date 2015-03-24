@@ -43,7 +43,7 @@ class Chest::CLI < Thor
       begin
         plugin.update
       rescue => e
-        fail "   #{plugin.name}: #{e}"
+        fail "   #{e}"
       else
         say "Updated '#{plugin.name}'"
       end

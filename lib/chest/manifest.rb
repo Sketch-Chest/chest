@@ -51,10 +51,10 @@ module Chest
           type: :git,
           url: query
         }
-      elsif query =~ /\A(http:\/\/.+)\z/
+      elsif query =~ /\Ahttps?:\/\//
         {
           type: :direct,
-          url: $1
+          url: query
         }
       elsif query =~ /\A([a-zA-Z0-9\-\.]+)\z/
         {

@@ -2,6 +2,7 @@ require 'json'
 require 'fileutils'
 require 'ostruct'
 require 'semantic'
+require 'rest_client'
 
 module Chest
   class Plugin
@@ -26,10 +27,16 @@ module Chest
 
     def install
       fetch_method = "fetch_#{type}"
-      if respond_to?(fetch_method, true) && self.send(fetch_method)
-        manifest = Manifest.new
-        manifest.add_plugin(@name, to_option)
-        manifest.save
+      if respond_to?(fetch_method, true)
+        begin
+          self.send(fetch_method)
+        rescue => e
+          raise "#{@name}: #{e}"
+        else
+          manifest = Manifest.new
+          manifest.add_plugin(@name, to_option)
+          manifest.save
+        end
       else
         raise "Unknown strategy type: #{type}"
       end
@@ -47,10 +54,16 @@ module Chest
 
     def update
       fetch_method = "update_#{type}"
-      if respond_to?(fetch_method, true) && self.send(fetch_method)
-        manifest = Manifest.new
-        manifest.add_plugin(@name, to_option)
-        manifest.save
+      if respond_to?(fetch_method, true)
+        begin
+          self.send(fetch_method)
+        rescue => e
+          raise "#{@name}: #{e}"
+        else
+          manifest = Manifest.new
+          manifest.add_plugin(@name, to_option)
+          manifest.save
+        end
       else
         raise "Unknown strategy type: #{type}"
       end
@@ -104,6 +117,16 @@ module Chest
             {
               type: :chest,
               version: version
+            }
+          ]
+        elsif query =~ /\Ahttps?:\/\//
+          unescaped_url = CGI.unescape(query)
+          name = File.basename(unescaped_url, File.extname(unescaped_url))
+          [
+            name,
+            {
+              type: :direct,
+              url: query
             }
           ]
         else
@@ -161,8 +184,24 @@ module Chest
     end
 
     def fetch_direct
-      unless system "curl -L '#{@options.url}' -o '#{path}'"
-        raise "Failed to install #{@name}"
+      Dir.mktmpdir do |tmpdir|
+        archive_path = File.join(tmpdir, 'package.zip')
+        unpacked_path = File.join(tmpdir, @name)
+        Dir.mkdir unpacked_path
+        open(archive_path, 'wb') do |f|
+          f.write RestClient.get(@options.url).body
+        end
+        Zip::File.open archive_path do |zip_file|
+          zip_file.each do |entry|
+            entry.extract(File.join(unpacked_path, entry.to_s))
+          end
+        end
+
+        if Dir.exist?(path)
+          FileUtils.rm_r path
+        end
+
+        FileUtils.cp_r unpacked_path, path
       end
     end
 
