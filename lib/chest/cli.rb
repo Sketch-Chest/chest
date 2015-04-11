@@ -144,4 +144,10 @@ class Chest::CLI < Thor
       say "Published"
     end
   end
+
+  desc 'open', 'Open plugins folder'
+  def open
+    config = Chest::Config.new
+    system %{/usr/bin/open "#{config.plugins_folder}"}
+  end
 end
