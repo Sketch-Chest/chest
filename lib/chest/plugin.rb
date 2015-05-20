@@ -8,6 +8,10 @@ module Chest
   class Plugin
     attr_reader :name, :options
 
+    SKETCH_APPSTORE = File.expand_path('~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
+    SKETCH_BETA = File.expand_path('~/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
+    PLUGINS_FOLDER_PATH = File.exist?(SKETCH_APPSTORE) ? SKETCH_APPSTORE : SKETCH_BETA
+
     class InvalidArgumentError < StandardError; end
 
     def initialize(name, options=nil)
@@ -18,7 +22,7 @@ module Chest
     end
 
     def path
-      File.join(Chest::Config.new.plugins_folder, @name)
+      File.join(PLUGINS_FOLDER_PATH, @name)
     end
 
     def type

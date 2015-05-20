@@ -3,23 +3,18 @@ require 'ostruct'
 require 'fileutils'
 
 module Chest
-  CONFIG_NAME = '.chestrc'
-  CONFIG_PATH = File.expand_path(CONFIG_NAME, '~')
+  CONFIG_BASE_DIR = File.expand_path('.config/chest', '~')
+  CONFIG_PATH = File.join(CONFIG_BASE_DIR, 'config.json')
+  MANIFEST_PATH = File.join(CONFIG_BASE_DIR, 'manifest.json')
 
   class FileMissingError < StandardError; end
 
   class Config < OpenStruct
-    SKETCH_APPSTORE = File.expand_path('~/Library/Containers/com.bohemiancoding.sketch3/Data/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
-    SKETCH_BETA = File.expand_path('~/Library/Application Support/com.bohemiancoding.sketch3/Plugins')
     attr_reader :file_path
 
     def initialize(file_path=CONFIG_PATH)
       super({})
       @file_path = file_path
-      @default_options = {}
-      @default_options[:plugins_folder] = File.exist?(SKETCH_APPSTORE) ? SKETCH_APPSTORE : SKETCH_BETA
-      @default_options[:manifest_path] = File.join(@default_options[:plugins_folder], '.manifest.json')
-
       self.load!
     end
 
@@ -36,7 +31,7 @@ module Chest
     end
 
     def method_missing(name, *args)
-      @default_options[name] ? @default_options[name] : super(name, *args)
+      super(name, *args)
     end
 
     def update!(attributes={})

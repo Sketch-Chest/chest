@@ -78,7 +78,7 @@ class Chest::Registry
 
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join tmpdir, "#{chest_config['name']}.zip"
-      ZipFileGenerator.new(input_path, archive_path, ignored_files).write
+      Zipfile.new(input_path, archive_path, ignored_files).write
       response = request :post, "/packages", token: @token, metadata: metadata, archive: File.new(archive_path, 'rb')
     end
 
