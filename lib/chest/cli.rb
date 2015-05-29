@@ -79,11 +79,11 @@ class Chest::CLI < Thor
     end
   end
 
-  desc 'init', 'Create chest.json'
+  desc 'init', 'Create manifest.json'
   def init
     package = {}
 
-    say 'Creating chest.json ...'
+    say 'Creating manifest.json ...'
 
     # Name
     package['name'] = ask 'name:', default: File.basename(Dir.pwd)
@@ -100,7 +100,8 @@ class Chest::CLI < Thor
     # Authors
     git_user  = `git config --get user.name`.strip
     git_email = `git config --get user.email`.strip
-    package['authors'] = [ask('authors:', default: "#{git_user} <#{git_email}>")]
+    package['author'] = ask('author:', default: git_user)
+    package['authorEmail'] = ask('authorEmail:', default: git_email)
 
     # License
     package['license'] = ask 'license:', default: 'MIT'
@@ -118,10 +119,10 @@ class Chest::CLI < Thor
     json = JSON.pretty_generate(package)
     say json
     if yes? 'Looks good?', :green
-      if File.exist?('chest.json') && !file_collision('chest.json')
+      if File.exist?('manifest.json') && !file_collision('manifest.json')
         fail SystemExit
       end
-      File.open('chest.json', 'w').write(json)
+      File.open('manifest.json', 'w').write(json)
     end
   end
 
@@ -142,6 +143,25 @@ class Chest::CLI < Thor
       fail e
     else
       say "Published"
+    end
+  end
+
+  desc 'unpublish', 'Unpublish package'
+  def unpublish(dir=Dir.pwd)
+    config = Chest::Config.new
+
+    unless config.token
+      config.token = ask 'Chest registry token:'
+      fail 'Specify valid token' unless config.token
+      config.save
+    end
+
+    registry = Chest::Registry.new config.token
+    status = registry.publish_package(dir)
+    if status.errors
+      say "Published"
+    else
+      fail "Failed publishing package"
     end
   end
 

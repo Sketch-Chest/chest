@@ -65,7 +65,7 @@ class Chest::Registry
   end
 
   def publish_package(input_path=Dir.pwd)
-    chest_config = JSON.parse(open(File.join(input_path, 'chest.json')).read)
+    chest_config = JSON.parse(open(File.join(input_path, 'manifest.json')).read)
 
     readme_path = File.join(input_path, 'README.md')
     readme = File.exist?(readme_path) ? File.open(readme_path).read : ''
