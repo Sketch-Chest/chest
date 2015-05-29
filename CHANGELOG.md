@@ -1,4 +1,4 @@
-# 2.0.0 - master
+# master
 
 - Integrate Chest registry service(URL: TBD)
 - Support for downloading zipped-archives

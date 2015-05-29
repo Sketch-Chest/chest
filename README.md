@@ -1,4 +1,4 @@
-![Logo](https://raw.githubusercontent.com/uetchy/Sketch-Chest/master/assets/readme_images/logo.png)
+![Logo](https://raw.githubusercontent.com/Sketch-Chest/chest/master/assets/readme_images/logo.png)
 
 # Chest
 

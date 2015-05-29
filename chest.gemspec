@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['uetchy@randompaper.co']
 
   spec.summary       = %q{The lightweight plugin manager for Sketch.app}
-  spec.homepage      = 'https://github.com/uetchy/Sketch-Chest'
+  spec.homepage      = 'https://github.com/Sketch-Chest'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

@@ -1,6 +1,6 @@
 require 'zip'
 
-class ZipFileGenerator
+class Zipfile
   def initialize(inputDir, outputFile, ignoredFiles=[])
     @inputDir = inputDir
     @outputFile = outputFile

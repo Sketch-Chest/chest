@@ -8,7 +8,7 @@ class Chest::CLI < Thor
     # TODO: add plugins, which are out of control, to manifest file
   end
 
-  desc 'install QUERY [, ALIAS_NAME]', 'Install plugin'
+  desc 'install QUERY [ALIAS_NAME]', 'Install plugin'
   def install(query, alias_name=nil)
     plugin = Chest::Plugin.create_from_query(query, alias_name)
 
