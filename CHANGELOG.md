@@ -1,8 +1,9 @@
-# 2.0.0
+# 2.0.0 - master
 
-- Chest registry service integration
+- Integrate Chest registry service(URL: TBD)
 - Support for downloading zipped-archives
-- Add #init, #info, #publish, #unpublish command
+- Add #init, #info, #publish, #unpublish, #open command
+- Support for new plugin architecture since Sketch 3.3
 
 # 1.0.0
 
