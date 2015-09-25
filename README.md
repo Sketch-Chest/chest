@@ -6,6 +6,8 @@
 
 The lightweight plugin manager for Sketch.app.
 
+This requires OS X Mavericks or higher.
+
 ## Installation
 
 ```console
