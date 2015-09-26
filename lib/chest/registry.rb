@@ -3,7 +3,6 @@ require 'rest_client'
 require 'uri'
 require 'fileutils'
 require 'parseconfig'
-require 'pp'
 
 class Chest::Registry
   def initialize(token=nil, api: 'http://chest.pm/api')
