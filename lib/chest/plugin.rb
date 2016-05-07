@@ -14,7 +14,7 @@ module Chest
 
     class InvalidArgumentError < StandardError; end
 
-    def initialize(name, options=nil)
+    def initialize(name, options = nil)
       @name = name
       @options = OpenStruct.new(options)
 
@@ -33,7 +33,7 @@ module Chest
       fetch_method = "fetch_#{type}"
       if respond_to?(fetch_method, true)
         begin
-          self.send(fetch_method)
+          send(fetch_method)
         rescue => e
           raise "#{@name}: #{e}"
         else
@@ -60,7 +60,7 @@ module Chest
       fetch_method = "update_#{type}"
       if respond_to?(fetch_method, true)
         begin
-          self.send(fetch_method)
+          send(fetch_method)
         rescue => e
           raise "#{@name}: #{e}"
         else
@@ -87,7 +87,7 @@ module Chest
     end
 
     class << self
-      def create_from_query(query, alias_name=nil)
+      def create_from_query(query, alias_name = nil)
         name, options = parse_query(query)
         new(alias_name || name, options)
       end
@@ -104,8 +104,8 @@ module Chest
             }
           ]
         elsif query =~ /\A([a-zA-Z0-9_\-]+)\/([a-zA-Z0-9_\-]+)\z/
-          name = $2
-          url  = "https://github.com/#{$1}/#{$2}.git"
+          name = Regexp.last_match(2)
+          url  = "https://github.com/#{Regexp.last_match(1)}/#{Regexp.last_match(2)}.git"
           [
             name,
             {
@@ -114,8 +114,8 @@ module Chest
             }
           ]
         elsif query =~ /\A([a-zA-Z0-9_\-]+)(?:@([a-zA-Z0-9\-\.]+))?\z/
-          name = $1
-          version = $2
+          name = Regexp.last_match(1)
+          version = Regexp.last_match(2)
           [
             name,
             {
@@ -176,15 +176,11 @@ module Chest
         command = "git clone '#{@options.url}' '#{path}'"
       end
 
-      unless system command
-        raise "Failed to install #{@options.url}"
-      end
+      raise "Failed to install #{@options.url}" unless system command
     end
 
     def update_git
-      unless system "cd '#{path}' && git pull"
-        raise "Failed to update #{@name}"
-      end
+      raise "Failed to update #{@name}" unless system "cd '#{path}' && git pull"
     end
 
     def fetch_direct
@@ -201,9 +197,7 @@ module Chest
           end
         end
 
-        if Dir.exist?(path)
-          FileUtils.rm_r path
-        end
+        FileUtils.rm_r path if Dir.exist?(path)
 
         FileUtils.cp_r unpacked_path, path
       end

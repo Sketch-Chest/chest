@@ -4,13 +4,13 @@ require 'fileutils'
 require 'chest/helpers/zipfile'
 
 class Chest::Registry
-  def initialize(token=nil, api: 'http://chest.pm/api')
+  def initialize(token = nil, api: 'http://chest.pm/api')
     @token = token
     # @api = api
     @api = 'http://localhost:3000/api'
   end
 
-  def request_raw(method, path, params=nil)
+  def request_raw(method, path, params = nil)
     case method
     when :get
       RestClient.get(path, params: params)
@@ -21,7 +21,7 @@ class Chest::Registry
     end
   end
 
-  def request(method, path, params=nil)
+  def request(method, path, params = nil)
     case method
     when :get
       JSON.parse(request_raw(:get, @api + path, params).body)
@@ -40,7 +40,7 @@ class Chest::Registry
     request :get, "/packages/#{package_name}/versions"
   end
 
-  def download_package(package_name, version='latest', path)
+  def download_package(package_name, version = 'latest', path)
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join(tmpdir, 'package.zip')
       unarchived_path = File.join(tmpdir, package_name)
@@ -64,7 +64,7 @@ class Chest::Registry
     end
   end
 
-  def publish_package(input_path=Dir.pwd)
+  def publish_package(input_path = Dir.pwd)
     chest_config = JSON.parse(open(File.join(input_path, 'manifest.json')).read)
 
     readme_path = File.join(input_path, 'README.md')
@@ -79,10 +79,10 @@ class Chest::Registry
     Dir.mktmpdir do |tmpdir|
       archive_path = File.join tmpdir, "#{chest_config['name']}.zip"
       Zipfile.new(input_path, archive_path, ignored_files).write
-      response = request :post, "/packages", token: @token, metadata: metadata, archive: File.new(archive_path, 'rb')
+      response = request :post, '/packages', token: @token, metadata: metadata, archive: File.new(archive_path, 'rb')
     end
 
-    return response
+    response
   end
 
   def unpublish_package(package_name)

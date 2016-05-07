@@ -12,41 +12,39 @@ module Chest
   class Config < OpenStruct
     attr_reader :file_path
 
-    def initialize(file_path=CONFIG_PATH)
+    def initialize(file_path = CONFIG_PATH)
       super({})
       @file_path = file_path
-      self.load!
+      load!
     end
 
     def load!
-      begin
-        if File.exist? @file_path
-          File.open(@file_path, 'r') do |f|
-            self.marshal_load(symbolize_keys(JSON(f.read)))
-          end
+      if File.exist? @file_path
+        File.open(@file_path, 'r') do |f|
+          marshal_load(symbolize_keys(JSON(f.read)))
         end
-      rescue Errno::ENOENT, IOError
-        raise FileMissingError, @file_path
       end
+    rescue Errno::ENOENT, IOError
+      raise FileMissingError, @file_path
     end
 
     def method_missing(name, *args)
       super(name, *args)
     end
 
-    def update!(attributes={})
+    def update!(attributes = {})
       attributes_with!(attributes)
     end
 
-    def attributes_with!(attributes={})
+    def attributes_with!(attributes = {})
       attributes.each do |key, value|
-        self.send(key.to_s + '=', value) if self.respond_to?(key.to_s + '=')
+        send(key.to_s + '=', value) if respond_to?(key.to_s + '=')
       end
     end
 
     def save
       FileUtils.mkpath(File.dirname(@file_path))
-      File.open(@file_path, 'w') {|f| f.puts self.to_json }
+      File.open(@file_path, 'w') { |f| f.puts to_json }
     end
 
     def to_hash
@@ -58,8 +56,9 @@ module Chest
     end
 
     private
+
     def symbolize_keys(hash)
-      hash.inject({}){|res, (k,v)| res[k.to_sym] = v; res}
+      hash.inject({}) { |res, (k, v)| res[k.to_sym] = v; res }
     end
   end
 end

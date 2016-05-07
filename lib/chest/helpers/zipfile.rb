@@ -1,7 +1,7 @@
 require 'zip'
 
 class Zipfile
-  def initialize(inputDir, outputFile, ignoredFiles=[])
+  def initialize(inputDir, outputFile, ignoredFiles = [])
     @inputDir = inputDir
     @outputFile = outputFile
     @ignoredFiles = ignoredFiles
@@ -9,7 +9,7 @@ class Zipfile
 
   def write
     entries = Dir.entries(@inputDir)
-    @ignoredFiles.each{|e| entries.delete(e) }
+    @ignoredFiles.each { |e| entries.delete(e) }
     io = Zip::File.open(@outputFile, Zip::File::CREATE)
     write_entries(entries, '', io)
     io.close
@@ -32,5 +32,4 @@ class Zipfile
       end
     end
   end
-
 end

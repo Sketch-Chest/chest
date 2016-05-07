@@ -9,16 +9,16 @@ class Chest::CLI < Thor
   end
 
   desc 'install QUERY [ALIAS_NAME]', 'Install plugin'
-  def install(query, alias_name=nil)
+  def install(query, alias_name = nil)
     plugin = Chest::Plugin.create_from_query(query, alias_name)
 
     say "Installing '#{plugin.name}' ...", :green
     begin
       plugin.install
     rescue => e
-      fail "   #{e}"
+      raise "   #{e}"
     else
-      say "   Successfully installed", :green
+      say '   Successfully installed', :green
     end
   end
 
@@ -30,20 +30,20 @@ class Chest::CLI < Thor
     begin
       plugin.uninstall
     rescue => e
-      fail "   #{e}"
+      raise "   #{e}"
     end
   end
 
   desc 'update [NAME]', 'Update plugins'
-  def update(name=nil)
-    puts "Updating plugins"
+  def update(name = nil)
+    puts 'Updating plugins'
 
     plugins = name ? [Chest::Manifest.new.get_plugin(name)] : Chest::Manifest.new.plugins
     plugins.each do |plugin|
       begin
         plugin.update
       rescue => e
-        fail "   #{e}"
+        raise "   #{e}"
       else
         say "Updated '#{plugin.name}'"
       end
@@ -109,7 +109,7 @@ class Chest::CLI < Thor
     # Homepage
     remote_url = `git config --get remote.origin.url`.strip
     package['homepage'] = ask 'homepage:', if remote_url =~ /github\.com[:\/]([a-zA-Z0-9_-]+?)\/([a-zA-Z0-9_\-]+?)\.git/
-      { default: "https://github.com/#{$1}/#{$2}" }
+                                             { default: "https://github.com/#{Regexp.last_match(1)}/#{Regexp.last_match(2)}" }
     end
 
     # Repository
@@ -120,19 +120,19 @@ class Chest::CLI < Thor
     say json
     if yes? 'Looks good?', :green
       if File.exist?('manifest.json') && !file_collision('manifest.json')
-        fail SystemExit
+        raise SystemExit
       end
       File.open('manifest.json', 'w').write(json)
     end
   end
 
   desc 'publish', 'Publish package'
-  def publish(dir=Dir.pwd)
+  def publish(dir = Dir.pwd)
     config = Chest::Config.new
 
     unless config.token
       config.token = ask 'Chest registry token:'
-      fail 'Specify valid token' unless config.token
+      raise 'Specify valid token' unless config.token
       config.save
     end
 
@@ -140,34 +140,34 @@ class Chest::CLI < Thor
     begin
       registry.publish_package(dir)
     rescue => e
-      fail e
+      raise e
     else
-      say "Published"
+      say 'Published'
     end
   end
 
   desc 'unpublish', 'Unpublish package'
-  def unpublish(dir=Dir.pwd)
+  def unpublish(dir = Dir.pwd)
     config = Chest::Config.new
 
     unless config.token
       config.token = ask 'Chest registry token:'
-      fail 'Specify valid token' unless config.token
+      raise 'Specify valid token' unless config.token
       config.save
     end
 
     registry = Chest::Registry.new config.token
     status = registry.publish_package(dir)
     if status.errors
-      say "Published"
+      say 'Published'
     else
-      fail "Failed publishing package"
+      raise 'Failed publishing package'
     end
   end
 
   desc 'open', 'Open plugins folder'
   def open
     config = Chest::Config.new
-    system %{/usr/bin/open "#{config.plugins_folder}"}
+    system %(/usr/bin/open "#{config.plugins_folder}")
   end
 end

@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Yasuaki Uechi']
   spec.email         = ['uetchy@randompaper.co']
 
-  spec.summary       = %q{The lightweight plugin manager for Sketch.app}
+  spec.summary       = 'The lightweight plugin manager for Sketch.app'
   spec.homepage      = 'https://github.com/Sketch-Chest/chest'
   spec.license       = 'MIT'
 
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'thor', '~> 0.19.1'
   spec.add_dependency 'rest-client', '~> 1.8.0'
-  spec.add_dependency 'rubyzip', '~> 1.1.7'
+  spec.add_dependency 'rubyzip', '~> 1.2.0'
   spec.add_dependency 'semantic', '~> 1.4.1'
 
   spec.add_development_dependency 'bundler'

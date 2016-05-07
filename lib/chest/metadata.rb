@@ -4,13 +4,13 @@ module Chest
   class Metadata
     attr_reader :metadata
 
-    def initialize(path=Chest::Config.new.metadata_path)
+    def initialize(path = Chest::Config.new.metadata_path)
       @path = path
       @metadata = load_metadata
     end
 
     def plugins
-      @metadata.map{|k, v| Plugin.new(k, parse_option(v))}
+      @metadata.map { |k, v| Plugin.new(k, parse_option(v)) }
     end
 
     def get_plugin(name)
@@ -18,9 +18,7 @@ module Chest
     end
 
     def get_plugin_option(name)
-      unless @metadata[name.to_s]
-        return {}
-      end
+      return {} unless @metadata[name.to_s]
       parse_option(@metadata[name.to_s])
     end
 
@@ -37,6 +35,7 @@ module Chest
     end
 
     private
+
     def load_metadata
       File.exist?(@path) ? JSON.parse(File.open(@path).read) : {}
     end
@@ -59,7 +58,7 @@ module Chest
       elsif query =~ /\A([a-zA-Z0-9\-\.]+)\z/
         {
           type: :chest,
-          version: $1 || 'latest'
+          version: Regexp.last_match(1) || 'latest'
         }
       else
         raise InvalidArgumentError, "Specify valid query: #{query}"
