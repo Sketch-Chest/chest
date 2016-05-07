@@ -20,12 +20,13 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'thor', '~> 0.19.1'
   spec.add_dependency 'rest-client', '~> 1.8.0'
-  spec.add_dependency 'semantic', '~> 1.4.1'
-  spec.add_dependency 'parseconfig', '~> 1.0.6'
+  # spec.add_dependency 'semantic', '~> 1.4.1'
+  # spec.add_dependency 'parseconfig', '~> 1.0.6'
   spec.add_dependency 'git', '~> 1.2.9'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'webmock'
 end

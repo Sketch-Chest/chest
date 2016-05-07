@@ -5,15 +5,15 @@ require 'fileutils'
 require 'parseconfig'
 
 class Chest::Registry
-  def initialize(token = nil, api: 'http://chest.pm/api')
+  def initialize(token = nil, endpoint: 'http://sketchchest.com/api')
     @token = token
-    @api = api
+    @endpoint = endpoint
   end
 
-  def request_raw(method, path, params = nil)
+  def request_raw(method, path, params = {})
     case method
     when :get
-      RestClient.get(path, params: params)
+      RestClient.get path, params: params
     when :post
       RestClient.post(path, params, content_type: :json, accept: :json)
     when :delete
@@ -21,17 +21,17 @@ class Chest::Registry
     end
   end
 
-  def request(method, path, params=nil)
-    params.merge! token: @token
-    response = request_raw(method, URI.join(@api, path), params)
-    return JSON.parse(response.body)
+  def request(method, path, params = {})
+    params[:token] = @token
+    response = request_raw(method, URI.join(@endpoint, path).to_s, params)
+    JSON.parse(response.body)
   end
 
   def fetch_package(package_name)
-    request :get, "/packages/#{package_name}"
+    request :get, "/packages/#{package_name}.json"
   end
 
-  def download_package(package_name, version='latest', path)
+  def download_package(package_name, _version = 'latest', path)
     Dir.mktmpdir do |tmpdir|
       manifest = fetch_package(package_name)
       repo_url = manifest['repository']['url']
@@ -44,21 +44,15 @@ class Chest::Registry
     end
   end
 
-  def publish_package(input_path = Dir.pwd)
+  def publish_package(git_url)
     # Parse manifest.json
-    unless Dir.glob('*.sketchplugin')[0]
-      return false
-    end
-    manifest_path = File.join(input_path, Dir.glob('*.sketchplugin')[0], 'Contents', 'Sketch', 'manifest.json')
-    unless File.exist?(manifest_path)
-      return false
-    end
+    manifest_path = '*.sketchplugin/Contents/Sketch/manifest.json'
     manifest = JSON.parse(File.read(manifest_path))
 
     # Parse README file
     readme_path = File.join(input_path, 'README.md')
     readme = File.exist?(readme_path) ? File.open(readme_path).read : ''
-    manifest.merge! readme: readme
+    manifest[:readme] = readme
 
     # Parse repository
     unless manifest['repository']
@@ -66,17 +60,17 @@ class Chest::Registry
       repository = ParseConfig.new(gitconfig_path)['remote "origin"']
       if repository
         repository_uri = URI.parse(repository['url'])
-        case repository_uri.host
-        when 'github.com'
-          url = "https://github.com" + repository_uri.path
-        else
-          url = repository_uri.to_s
-        end
-        manifest.merge! repository: {type: 'git', url: url}
+        url = case repository_uri.host
+              when 'github.com'
+                'https://github.com' + repository_uri.path
+              else
+                repository_uri.to_s
+              end
+        manifest[:repository] = { type: 'git', url: url }
       end
     end
 
-    request :post, "/packages", manifest: manifest
+    request :post, '/packages', manifest: manifest
     response
   end
 
