@@ -5,7 +5,6 @@ require 'fileutils'
 module Chest
   CONFIG_BASE_DIR = File.expand_path('.config/chest', '~')
   CONFIG_PATH = File.join(CONFIG_BASE_DIR, 'config.json')
-  MANIFEST_PATH = File.join(CONFIG_BASE_DIR, 'manifest.json')
 
   class FileMissingError < StandardError; end
 

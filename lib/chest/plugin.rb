@@ -17,7 +17,6 @@ module Chest
     def initialize(name, options = nil)
       @name = name
       @options = OpenStruct.new(options)
-
       @registry = Chest::Registry.new
     end
 

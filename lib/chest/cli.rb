@@ -5,7 +5,6 @@ require 'json'
 class Chest::CLI < Thor
   def initialize(*args)
     super
-    # TODO: add plugins, which are out of control, to manifest file
   end
 
   desc 'install QUERY [ALIAS_NAME]', 'Install plugin'
