@@ -20,16 +20,16 @@ You can install Sketch plugins from Github by using `install` command:
 
 ```console
 $ chest install https://github.com/uetchy/Sketch-StickyGrid.git
-$ chest i uetchy/Sketch-StickyGrid
+$ chest install uetchy/Sketch-StickyGrid
 ```
 
-Also you can use `uninstall`, `update`, `list` commands like this:
+Also you can use `uninstall`, `update`, `list` commands:
 
 ```console
-$ chest uninstall Sketch-StickyGrid # delete from Plugins folder
-$ chest update Sketch-StickyGrid    # pull from git
-$ chest update                      # updates all plugins
-$ chest list                        # list installed plugins
+$ chest uninstall StickyGrid # delete from Plugins folder
+$ chest update StickyGrid    # pull from git
+$ chest update               # updates all plugins
+$ chest list                 # list installed plugins
 ```
 
 To see all of available commands, use `help` command:
