@@ -8,6 +8,12 @@ class Chest::CLI < Thor
     super
   end
 
+  desc "version", "Prints the bundler's version information"
+  def version
+    say "Chest version #{Chest::VERSION}"
+  end
+  map %w(-v --version) => :version
+
   desc 'install NAME', 'Install plugin'
   def install(query)
     git_url = Chest::Registry.new.normalize_to_git_url(query)
@@ -26,7 +32,7 @@ class Chest::CLI < Thor
       say '===> Error', :red
       raise e
     else
-      say '💎 Successfully installed'
+      say '💎  Successfully installed'
     end
   end
 
