@@ -1,80 +1,97 @@
 require 'thor'
 require 'fileutils'
 require 'json'
+require 'git'
 
 class Chest::CLI < Thor
   def initialize(*args)
     super
   end
 
-  desc 'install QUERY [ALIAS_NAME]', 'Install plugin'
-  def install(query, alias_name = nil)
-    plugin = Chest::Plugin.create_from_query(query, alias_name)
+  desc 'install NAME', 'Install plugin'
+  def install(query)
+    git_url = Chest::Registry.new.normalize_to_git_url(query)
+    plugin_folder = Chest::PluginFolder.new
 
-    say "Installing '#{plugin.name}' ...", :green
     begin
-      plugin.install
+      say "===> Cloning #{git_url}"
+      Dir.mktmpdir do |tmpdir|
+        repo = Git.clone(git_url, 'p', path: tmpdir)
+        remote_path = URI.parse(repo.remote.url).path
+        repo_name = File.basename(remote_path, File.extname(remote_path))
+        plugin_folder.install(File.join(tmpdir, 'p'), repo_name)
+        info(repo_name)
+      end
     rescue => e
-      raise "   #{e}"
+      say '===> Error', :red
+      raise e
     else
-      say '   Successfully installed', :green
+      say '💎 Successfully installed'
     end
   end
 
   desc 'uninstall NAME', 'Uninstall plugin'
-  def uninstall(name)
-    plugin = Chest::Plugin.new(name)
+  def uninstall(plugin_name)
+    plugin_folder = Chest::PluginFolder.new
 
-    say "Uninstalling '#{plugin.name}' ..."
     begin
-      plugin.uninstall
+      plugin_path = plugin_folder.path_for(plugin_name, true)
+      unless Dir.exist? plugin_path
+        raise "#{plugin_name} doesn't exist"
+      end
+      delete = yes? "Are you sure to uninstall '#{plugin_name}'? (y/n)"
+      if delete
+        say '===> Uninstalling'
+        deleted_path = plugin_folder.uninstall(plugin_path)
+        say "Deleted: #{deleted_path}"
+      end
     rescue => e
-      raise "   #{e}"
+      say '===> Error', :red
+      raise e.to_s
     end
   end
 
   desc 'update [NAME]', 'Update plugins'
-  def update(name = nil)
-    puts 'Updating plugins'
+  def update(plugin_name = nil)
+    plugin_folder = Chest::PluginFolder.new
+    plugins = plugin_name ? [plugin_folder.path_for(plugin_name, true)] : plugin_folder.plugins
 
-    plugins = name ? [Chest::Manifest.new.get_plugin(name)] : Chest::Manifest.new.plugins
-    plugins.each do |plugin|
+    say '===> Updating plugins'
+    plugins.each do |plugin_path|
       begin
-        plugin.update
+        manifest = plugin_folder.manifest_for(plugin_path)
+        repo = Git.open(plugin_path)
+        repo.pull
       rescue => e
-        raise "   #{e}"
+        say "Error: #{e.to_s}", :red
       else
-        say "Updated '#{plugin.name}'"
+        new_manifest = plugin_folder.manifest_for(plugin_path)
+        say "Updated #{manifest['name']} (#{manifest['version']} > #{new_manifest['version']})", :green
       end
     end
   end
 
   desc 'info NAME', 'Show plugin info'
-  def info(name)
-    plugin = Chest::Manifest.new.get_plugin(name)
-    case plugin.type
-    when :chest
-      say "#{plugin.name} (#{plugin.options.version})"
-    when :git
-      say plugin.name
-      say plugin.options.url
-    when :direct
-      say plugin.name
-      say plugin.options.url
+  def info(plugin_name)
+    plugin_folder = Chest::PluginFolder.new
+    plugin_path = plugin_folder.path_for(plugin_name, true)
+    unless Dir.exist? plugin_path
+      raise "#{plugin_name} doesn't exist"
     end
+    manifest = plugin_folder.manifest_for(plugin_path)
+    say "#{manifest['name']}: #{manifest['version']}"
+    say (manifest['description']).to_s
+    say "Author: #{manifest['author']}"
+    say (manifest['homepage']).to_s
   end
 
   desc 'list', 'List plugins'
   def list
-    Chest::Manifest.new.plugins.each do |plugin|
-      case plugin.type
-      when :chest
-        say "#{plugin.name} (#{plugin.options.version})"
-      when :git
-        say "#{plugin.name} (#{plugin.options.url})"
-      when :direct
-        say "#{plugin.name} (#{plugin.options.url})"
-      end
+    plugin_folder = Chest::PluginFolder.new
+    plugins = plugin_folder.plugins
+    plugins.each do |plugin_path|
+      manifest = plugin_folder.manifest_for(plugin_path)
+      say "#{manifest['name']} (#{manifest['version']})"
     end
   end
 
@@ -125,48 +142,8 @@ class Chest::CLI < Thor
     end
   end
 
-  desc 'publish', 'Publish package'
-  def publish(dir = Dir.pwd)
-    config = Chest::Config.new
-
-    unless config.token
-      config.token = ask 'Chest registry token:'
-      raise 'Specify valid token' unless config.token
-      config.save
-    end
-
-    registry = Chest::Registry.new config.token
-    begin
-      registry.publish_package(dir)
-    rescue => e
-      raise e
-    else
-      say 'Published'
-    end
-  end
-
-  desc 'unpublish', 'Unpublish package'
-  def unpublish(dir = Dir.pwd)
-    config = Chest::Config.new
-
-    unless config.token
-      config.token = ask 'Chest registry token:'
-      raise 'Specify valid token' unless config.token
-      config.save
-    end
-
-    registry = Chest::Registry.new config.token
-    status = registry.publish_package(dir)
-    if status.errors
-      say 'Published'
-    else
-      raise 'Failed publishing package'
-    end
-  end
-
   desc 'open', 'Open plugins folder'
   def open
-    config = Chest::Config.new
-    system %(/usr/bin/open "#{config.plugins_folder}")
+    system %(/usr/bin/open "#{Chest::PluginFolder::SKETCH_PLUGIN_FOLDER_PATH}")
   end
 end

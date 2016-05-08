@@ -2,10 +2,9 @@ require 'json'
 require 'rest_client'
 require 'uri'
 require 'fileutils'
-require 'parseconfig'
 
 class Chest::Registry
-  def initialize(token = nil, endpoint: 'http://sketchchest.com/api')
+  def initialize(token = nil, endpoint: 'http://sketchchest.com/api/')
     @token = token
     @endpoint = endpoint
   end
@@ -28,53 +27,23 @@ class Chest::Registry
   end
 
   def fetch_package(package_name)
-    request :get, "/packages/#{package_name}.json"
+    request :get, "packages/#{package_name}.json"
   end
 
-  def download_package(package_name, _version = 'latest', path)
-    Dir.mktmpdir do |tmpdir|
-      manifest = fetch_package(package_name)
-      repo_url = manifest['repository']['url']
-      suc = system "git clone #{repo_url} #{tmpdir}"
-      if suc
-        FileUtils.cp_r tmpdir, path
-      else
-        return false
+  def normalize_to_git_url(query)
+    if query =~ /\.git$/
+      return query
+    elsif query =~ /\A([a-zA-Z0-9_\-]+)\/([a-zA-Z0-9_\-]+)\z/
+      user = Regexp.last_match(1)
+      repository = Regexp.last_match(2)
+      url  = "https://github.com/#{user}/#{repository}.git"
+      return url
+    else
+      package = fetch_package(query)
+      if package["error"]
+        raise InvalidArgumentError, "Specify valid query for #{query}"
       end
+      return package["git_url"]
     end
-  end
-
-  def publish_package(git_url)
-    # Parse manifest.json
-    manifest_path = '*.sketchplugin/Contents/Sketch/manifest.json'
-    manifest = JSON.parse(File.read(manifest_path))
-
-    # Parse README file
-    readme_path = File.join(input_path, 'README.md')
-    readme = File.exist?(readme_path) ? File.open(readme_path).read : ''
-    manifest[:readme] = readme
-
-    # Parse repository
-    unless manifest['repository']
-      gitconfig_path = File.join(input_path, '.git', 'config')
-      repository = ParseConfig.new(gitconfig_path)['remote "origin"']
-      if repository
-        repository_uri = URI.parse(repository['url'])
-        url = case repository_uri.host
-              when 'github.com'
-                'https://github.com' + repository_uri.path
-              else
-                repository_uri.to_s
-              end
-        manifest[:repository] = { type: 'git', url: url }
-      end
-    end
-
-    request :post, '/packages', manifest: manifest
-    response
-  end
-
-  def unpublish_package(package_name)
-    request :delete, "/packages/#{package_name}"
   end
 end
