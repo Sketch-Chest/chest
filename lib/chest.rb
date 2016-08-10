@@ -5,5 +5,6 @@ require 'chest/config'
 require 'chest/registry'
 require 'chest/cli'
 
+# Chest module
 module Chest
 end

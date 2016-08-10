@@ -16,7 +16,7 @@ describe Chest::CLI do
     let(:output) { capture(:stdout) { subject.install('uetchy/Sketch-StickyGrid') } }
 
     it 'install plugin' do
-      expect(output).to include("installed")
+      expect(output).to include('installed')
     end
 
     it 'find out plugin in Sketch plugin folder' do

@@ -8,7 +8,7 @@ class Chest::CLI < Thor
     super
   end
 
-  desc "version", "Prints the bundler's version information"
+  desc 'version', "Prints the bundler's version information"
   def version
     say "Chest version #{Chest::VERSION}"
   end
@@ -42,9 +42,9 @@ class Chest::CLI < Thor
 
     begin
       plugin_path = plugin_folder.path_for(plugin_name, true)
-      unless Dir.exist? plugin_path
-        raise "#{plugin_name} doesn't exist"
-      end
+
+      raise "#{plugin_name} doesn't exist" unless Dir.exist? plugin_path
+
       delete = yes? "Are you sure to uninstall '#{plugin_name}'? (y/n)"
       if delete
         say '===> Uninstalling'
@@ -69,7 +69,7 @@ class Chest::CLI < Thor
         repo = Git.open(plugin_path)
         repo.pull
       rescue => e
-        say "Error: #{e.to_s}", :red
+        say "Error: #{e}", :red
       else
         new_manifest = plugin_folder.manifest_for(plugin_path)
         say "Updated #{manifest['name']} (#{manifest['version']} > #{new_manifest['version']})", :green
@@ -81,14 +81,13 @@ class Chest::CLI < Thor
   def info(plugin_name)
     plugin_folder = Chest::PluginFolder.new
     plugin_path = plugin_folder.path_for(plugin_name, true)
-    unless Dir.exist? plugin_path
-      raise "#{plugin_name} doesn't exist"
-    end
+    raise "#{plugin_name} doesn't exist" unless Dir.exist? plugin_path
+
     manifest = plugin_folder.manifest_for(plugin_path)
     say "#{manifest['name']}: #{manifest['version']}"
-    say (manifest['description']).to_s
+    say manifest['description'].to_s
     say "Author: #{manifest['author']}"
-    say (manifest['homepage']).to_s
+    say manifest['homepage'].to_s
   end
 
   desc 'list', 'List plugins'
@@ -130,9 +129,9 @@ class Chest::CLI < Thor
 
     # Homepage
     remote_url = `git config --get remote.origin.url`.strip
-    package['homepage'] = ask 'homepage:', if remote_url =~ /github\.com[:\/]([a-zA-Z0-9_-]+?)\/([a-zA-Z0-9_\-]+?)\.git/
+    package['homepage'] = ask 'homepage:', if remote_url =~ %r{github\.com[:\/]([a-zA-Z0-9_-]+?)\/([a-zA-Z0-9_\-]+?)\.git}
                                              { default: "https://github.com/#{Regexp.last_match(1)}/#{Regexp.last_match(2)}" }
-    end
+      end
 
     # Repository
     package['repository'] = remote_url

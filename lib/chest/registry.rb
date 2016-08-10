@@ -36,14 +36,14 @@ class Chest::Registry
     elsif query =~ /\A([a-zA-Z0-9_\-]+)\/([a-zA-Z0-9_\-]+)\z/
       user = Regexp.last_match(1)
       repository = Regexp.last_match(2)
-      url  = "https://github.com/#{user}/#{repository}.git"
+      url = "https://github.com/#{user}/#{repository}.git"
       return url
     else
       package = fetch_package(query)
-      if package["error"]
+      if package['error']
         raise InvalidArgumentError, "Specify valid query for #{query}"
       end
-      return package["git_url"]
+      return package['git_url']
     end
   end
 end

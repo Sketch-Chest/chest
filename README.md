@@ -1,7 +1,5 @@
 ![Logo](https://raw.githubusercontent.com/Sketch-Chest/chest/master/assets/readme_images/logo.png)
 
-# Chest
-
 [![Build Status](https://travis-ci.org/Sketch-Chest/chest.svg?branch=master)](https://travis-ci.org/Sketch-Chest/chest) [![Join the chat at https://gitter.im/Sketch-Chest/chest](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Sketch-Chest/chest?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 The lightweight plugin manager for Sketch.

@@ -4,7 +4,8 @@ require 'chest'
 
 begin
   Chest::CLI.start ARGV
-rescue SystemExit, Interrupt
-rescue Exception => err
+rescue SystemExit, Interrupt => err
+  puts err
+rescue StandardError => err
   puts err
 end

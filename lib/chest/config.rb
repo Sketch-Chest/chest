@@ -57,7 +57,10 @@ module Chest
     private
 
     def symbolize_keys(hash)
-      hash.inject({}) { |res, (k, v)| res[k.to_sym] = v; res }
+      hash.each_with_object({}) do |(k, v), res|
+        res[k.to_sym] = v
+        res
+      end
     end
   end
 end

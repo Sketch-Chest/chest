@@ -25,7 +25,7 @@ module Chest
         end
       end
 
-      return nil
+      nil
     end
 
     def plugins
@@ -34,9 +34,7 @@ module Chest
 
     def install(source_path, plugin_name)
       destination_path = path_for(plugin_name)
-      if Dir.exist? destination_path
-        raise "#{plugin_name} already installed"
-      end
+      raise "#{plugin_name} already installed" if Dir.exist? destination_path
       FileUtils.cp_r(source_path, destination_path)
     end
 
